@@ -7,9 +7,11 @@ namespace ControllerComponent
     public class Controller : MonoBehaviour
     {
         Vector2 movementAxis = new Vector2();
+        Vector2 movementAxisRaw = new Vector2();
         bool primaryAction = false;
         bool secondaryAction = false;
-        Behaviour rb;
+        public LayerMask collisionLayers;
+        private float collisionCastDistance = 0.1f;
 
         // Sets the inputs for the controller every 60 frames
         private void Update()
@@ -19,16 +21,19 @@ namespace ControllerComponent
             movementAxis = new Vector2(_x, _y);
             primaryAction = Input.GetButtonDown("Fire1");
             secondaryAction = Input.GetButtonDown("Fire2");
-        }
-
-        public void SetRigidBody(Behaviour _rb)
-        {
-            rb = _rb;
+            _x = Input.GetAxisRaw("Horizontal");
+            _y = Input.GetAxisRaw("Vertical");
+            movementAxisRaw = new Vector2(_x, _y);
         }
 
         public Vector2 getMovementAxis()
         {
             return movementAxis;
+        }
+
+        public Vector2 getMovementAxisRaw()
+        {
+            return movementAxisRaw;
         }
 
         public bool getAction(int _type)
@@ -42,6 +47,17 @@ namespace ControllerComponent
                 default:
                     return false;
             }
+        }
+
+        // Check if there is a collidable object in the desired path
+        public bool getRayToDirection2D(Vector2 direction)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, collisionCastDistance, collisionLayers);
+            if (hit.collider)
+            {
+                return true;
+            }
+            return false;
         }
 
     }
